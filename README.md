@@ -1,1 +1,2 @@
 # AnnotationNLP
+This folder contains materials for a one-day course on annotation for clinical NLP. We will use the Brat annotation tool to annotate chest x-ray reports based on whether there is evidence of acute bacterial pneumonia described in the report.
