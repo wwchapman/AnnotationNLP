@@ -232,7 +232,7 @@ def relax_compare_one_doc(evaluators: Evaluator, doc_name: str, grouped_annotati
     pass
 
 
-def show_annotations(doc_annotations, width=900, height=400):
+def show_annotations(doc_annotations, doc_map, width=900, height=400):
     if len(doc_annotations) == 0:
         print('No documents to display.')
         return
@@ -246,7 +246,7 @@ def show_annotations(doc_annotations, width=900, height=400):
             div_config2,
             "<table width=100% ><col style=\"width:25%\"><col style=\"width:75%\">"]
     for doc_name, annotations in doc_annotations.items():
-        html.extend(show_annotations(doc_name, annotations))
+        html.extend(show_annotations(doc_name, doc_map[doc_name], annotations))
     html.append("</table></div>")
     html.append("</html>")
     return ''.join(html)
