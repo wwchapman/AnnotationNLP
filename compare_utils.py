@@ -233,8 +233,8 @@ def relax_compare_one_doc(evaluators: Evaluator, doc_name: str, grouped_annotati
             evaluator.add_fp(len(remain_ids))
             evaluator.append_fps(doc_name, [annos_list_of_one_type[i] for i in remain_ids])
 
-        evaluator.fns = sorted(evaluator.fns, key=lambda x: x.start_index)
-        evaluator.fps = sorted(evaluator.fps, key=lambda x: x.start_index)
+    evaluator.fns[doc_name] = sorted(evaluator.fns[doc_name], key=lambda x: x.start_index)
+    evaluator.fps[doc_name] = sorted(evaluator.fps[doc_name], key=lambda x: x.start_index)
     pass
 
 
@@ -265,7 +265,8 @@ def show_one_doc_annotations(doc_name, doc_text, annotations, annotator_a, annot
     window_size = 50
     html.append("<tr>")
     html.append("<td style=\"text-align:left\">{0}</td>".format(doc_name))
-    html.append("<td><a href=\"https://brat.jupyter.med.utah.edu/diff.xhtml?diff=%2Fstudent_folders%2F"+annotator_a+"%2F#/student_folders/"+annotator_b+"/"+doc_name+"\" target=\"_blank\">document view</a></td>")
+    html.append(
+        "<td><a href=\"https://brat.jupyter.med.utah.edu/diff.xhtml?diff=%2Fstudent_folders%2F" + annotator_a + "%2F#/student_folders/" + annotator_b + "/" + doc_name + "\" target=\"_blank\">document view</a></td>")
     html.append("</tr>")
     for anno in annotations:
         #           make sure the our snippet will be cut inside the text boundary
