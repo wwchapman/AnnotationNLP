@@ -262,7 +262,7 @@ def show_one_doc_annotations(doc_name, doc_text, annotations, annotator_a, annot
     window_size = 50
     html.append("<tr>")
     html.append("<td style=\"text-align:left\">{0}</td>".format(doc_name))
-    html.append("<td><a href=\"https://brat.jupyter.med.utah.edu/#/student_folders/"+annotator_a+"/"+doc_name+"\" target=\"_blank\">annotator_a</a>-------<a href=\"https://brat.jupyter.med.utah.edu/#/student_folders/"+annotator_b+"/"+doc_name+"\" target=\"_blank\">annotator_b</a></td>")
+    html.append("<td><a href=\"https://brat.jupyter.med.utah.edu/diff.xhtml?diff=%2Fstudent_folders%2F"+annotator_a+"%2F#/student_folders/"+annotator_b+"/"+doc_name+"\" target=\"_blank\">document view</a></td>")
     html.append("</tr>")
     for anno in annotations:
         #           make sure the our snippet will be cut inside the text boundary
