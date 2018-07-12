@@ -3,6 +3,7 @@ from collections import OrderedDict
 
 from nlp_pneumonia_utils import AnnotatedDocument, Annotation
 from intervaltree import IntervalTree
+import pandas as pd
 
 
 class Evaluator:
@@ -44,7 +45,13 @@ class Evaluator:
         self.fns[doc_name].extend(fns)
 
     def get_values(self):
-        return self.tp, self.fp, self.tn, self.fn
+        return self.tp, self.fp, self.fn, self.tn
+    
+    def display_values(self):
+        df=pd.DataFrame({'B+':[self.tp, self.fn],
+                       'B-':[self.fp,self.tn]},
+                       index = ['A+', 'A-'])
+        return df
 
     def total(self):
         return self.tn + self.tp + self.fp + self.tn
@@ -55,8 +62,11 @@ class Evaluator:
     def get_precision(self):
         return round(100 * self.tp / (self.tp + self.fp)) / 100
 
-    def f1(self):
+    def get_f1(self):
         return round(200 * self.tp / (2 * self.tp + self.fp + self.fn)) / 100
+    
+    def get_iaa(self):
+        return get_f1()
 
     def get_fns(self) -> dict:
         return self.fns
@@ -95,7 +105,6 @@ def docs_reader(dir):
     for name in sorted(os.listdir(dir)):
         if name.endswith('.txt') or name.endswith('.ann'):
             basename = name.split('.')[0]
-            print(name)
             if basename not in annotated_doc_map:
                 annotated_doc_map[basename] = AnnotatedDocument()
             anno_doc = annotated_doc_map[basename]
@@ -182,10 +191,10 @@ def strict_compare_one_doc(evaluators: Evaluator, doc_name: str, grouped_annotat
 
         if p1 < len(annos1):
             evaluator.add_fp(len(annos1) - p1)
-            evaluator.add_fps(annos1[p1:])
+            evaluator.append_fps(doc_name, annos1[p1:])
         elif p2 < len(annos2):
             evaluator.add_fn(len(annos2) - p2)
-            evaluator.add_fps(annos2[p2:])
+            evaluator.append_fns(doc_name, annos2[p2:])
     pass
 
 
