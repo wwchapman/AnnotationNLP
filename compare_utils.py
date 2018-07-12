@@ -237,7 +237,7 @@ def relax_compare_one_doc(evaluators: Evaluator, doc_name: str, grouped_annotati
 
 def show_annotations(doc_annotations, doc_map, annotator_a, annotator_b, width=900, height=400):
     if len(doc_annotations) == 0:
-        print('No documents to display.')
+        print('\tNo documents to display.')
         return
     div_config1 = '<div style="background-color:#f9f9f9;padding-left:10px;' \
                   'width: ' + str(width - 23) + 'px; ">'
