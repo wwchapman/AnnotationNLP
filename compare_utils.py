@@ -232,11 +232,12 @@ def relax_compare_one_doc(evaluators: Evaluator, doc_name: str, grouped_annotati
         if len(remain_ids) > 0:
             evaluator.add_fp(len(remain_ids))
             evaluator.append_fps(doc_name, [annos_list_of_one_type[i] for i in remain_ids])
-    if doc_name in evaluator.fns:
-        evaluator.fns[doc_name] = sorted(evaluator.fns[doc_name], key=lambda x: x.start_index)
 
-    if doc_name in evaluator.fps:
-        evaluator.fps[doc_name] = sorted(evaluator.fps[doc_name], key=lambda x: x.start_index)
+        if doc_name in evaluator.fns:
+            evaluator.fns[doc_name] = sorted(evaluator.fns[doc_name], key=lambda x: x.start_index)
+
+        if doc_name in evaluator.fps:
+            evaluator.fps[doc_name] = sorted(evaluator.fps[doc_name], key=lambda x: x.start_index)
     pass
 
 
