@@ -235,7 +235,7 @@ def relax_compare_one_doc(evaluators: Evaluator, doc_name: str, grouped_annotati
     pass
 
 
-def show_annotations(doc_annotations, doc_map, width=900, height=400):
+def show_annotations(doc_annotations, doc_map, annotator_a, annotator_b, width=900, height=400):
     if len(doc_annotations) == 0:
         print('No documents to display.')
         return
@@ -249,20 +249,20 @@ def show_annotations(doc_annotations, doc_map, width=900, height=400):
             div_config2,
             "<table width=100% ><col style=\"width:25%\"><col style=\"width:75%\">"]
     for doc_name, annotations in doc_annotations.items():
-        html.extend(show_one_doc_annotations(doc_name, doc_map[doc_name], annotations))
+        html.extend(show_one_doc_annotations(doc_name, doc_map[doc_name], annotations, annotator_a, annotator_b))
     html.append("</table></div>")
     html.append("</html>")
     return display(HTML(''.join(html)))
 
 
-def show_one_doc_annotations(doc_name, doc_text, annotations):
+def show_one_doc_annotations(doc_name, doc_text, annotations, annotator_a, annotator_b):
     from pyConTextNLP.display.html import __insert_color
     html = []
     color = 'blue'
     window_size = 50
     html.append("<tr>")
     html.append("<td style=\"text-align:left\">{0}</td>".format(doc_name))
-    html.append("<td></td>")
+    html.append("<td><a href=\"https://brat.jupyter.med.utah.edu/#/student_folders/"+annotator_a+"/"+doc_name+"\">annotator_a</a>   <a href=\"https://brat.jupyter.med.utah.edu/#/student_folders/"+annotator_b+"/"+doc_name+"\">annotator_b</a></td>")
     html.append("</tr>")
     for anno in annotations:
         #           make sure the our snippet will be cut inside the text boundary
