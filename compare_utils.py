@@ -1,6 +1,8 @@
 import os
 from collections import OrderedDict
 
+from ipywidgets import HTML
+
 from nlp_pneumonia_utils import AnnotatedDocument, Annotation
 from intervaltree import IntervalTree
 import pandas as pd
@@ -249,7 +251,7 @@ def show_annotations(doc_annotations, doc_map, width=900, height=400):
         html.extend(show_one_doc_annotations(doc_name, doc_map[doc_name], annotations))
     html.append("</table></div>")
     html.append("</html>")
-    return ''.join(html)
+    return HTML(''.join(html))
 
 
 def show_one_doc_annotations(doc_name, doc_text, annotations):
