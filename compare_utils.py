@@ -46,11 +46,11 @@ class Evaluator:
 
     def get_values(self):
         return self.tp, self.fp, self.fn, self.tn
-    
+
     def display_values(self):
-        df=pd.DataFrame({'B+':[self.tp, self.fn],
-                       'B-':[self.fp,self.tn]},
-                       index = ['A+', 'A-'])
+        df = pd.DataFrame({'B+': [self.tp, self.fn],
+                           'B-': [self.fp, self.tn]},
+                          index=['A+', 'A-'])
         return df
 
     def total(self):
@@ -64,9 +64,9 @@ class Evaluator:
 
     def get_f1(self):
         return round(200 * self.tp / (2 * self.tp + self.fp + self.fn)) / 100
-    
+
     def get_iaa(self):
-        return get_f1()
+        return self.get_f1()
 
     def get_fns(self) -> dict:
         return self.fns
@@ -94,56 +94,51 @@ def group_brat_annotations(lines):
         anno.type = space_tokens[0]
         anno.start_index = int(space_tokens[1])
         anno.end_index = int(space_tokens[-1])
-        if (anno.type not in annotations):
+        if anno.type not in annotations:
             annotations[anno.type] = []
         annotations[anno.type].append(anno)
     return annotations
 
 
-def docs_reader(dir):
-    annotated_doc_map = {}
-    for name in sorted(os.listdir(dir)):
-        if name.endswith('.txt') or name.endswith('.ann'):
-            basename = name.split('.')[0]
-            if basename not in annotated_doc_map:
-                annotated_doc_map[basename] = AnnotatedDocument()
-            anno_doc = annotated_doc_map[basename]
-            # handle text and BRAT annotation files (.ann) differently
-            if name.endswith('.txt'):
-                with open(os.path.join(dir, name)) as f1:
-                    anno_doc.text = f1.read()
-                f1.close()
-            else:
-                with open(os.path.join(dir, name)) as f2:
-                    anno_doc.grouped_annotations = group_brat_annotations(f2.readlines())
-                f2.close()
-
-    return annotated_doc_map
+def docs_reader(project_dir):
+    annotation_map = {}
+    doc_map = {}
+    for name in sorted(os.listdir(project_dir)):
+        basename = name.split('.')[0]
+        if name.endswith('.txt'):
+            with open(os.path.join(project_dir, name)) as f1:
+                doc_map[basename] = f1.read()
+            f1.close()
+        elif name.endswith('.ann'):
+            annotation_map[basename] = {}
+            with open(os.path.join(project_dir, name)) as f2:
+                annotation_map[basename] = group_brat_annotations(f2.readlines())
+            f2.close()
+    return doc_map, annotation_map
 
 
 def compare_projects(dir1: str, dir2: str, compare_method: str) -> dict:
-    annotated_doc_map1 = docs_reader(dir1)
-    annotated_doc_map2 = docs_reader(dir2)
-    return compare(annotated_doc_map1, annotated_doc_map2, compare_method)
+    doc_map1, annotation_map1 = docs_reader(dir1)
+    doc_map2, annotation_map2 = docs_reader(dir2)
+    return doc_map1, compare(annotation_map1, annotation_map2, compare_method)
 
 
-def compare(annotated_doc_map1: dict, annotated_doc_map2: dict, compare_method='relax') -> dict:
+def compare(annotation_map1: dict, annotation_map2: dict, compare_method='relax') -> dict:
     """
-    :param annotated_doc_map1: a dictionary with doc_name as the key, an AnnotatedDocument as the value
-    :param annotated_doc_map2:a dictionary with doc_name as the key, an AnnotatedDocument as the value (of reference annotator)
+    :param annotation_map1: a dictionary with doc_name as the key, an AnnotatedDocument as the value
+    :param annotation_map2:a dictionary with doc_name as the key, an AnnotatedDocument as the value (of reference annotator)
     :param compare_method: "strict" or "relax"
     :return: a dictionary of Evaluators (each Evaluator stores the compared results of one annotation type)
     """
-    if len(annotated_doc_map1) != len(annotated_doc_map2):
+    if len(annotation_map1) != len(annotation_map2):
         raise ValueError("The two input datasets don't have a equal amount of documents.")
         return None
     evaluators = {}
-    for doc_name, annotation_doc in annotated_doc_map1.items():
-        grouped_annotations2 = annotated_doc_map2[doc_name].grouped_annotations
+    for doc_name, grouped_annotations in annotation_map1.items():
         if compare_method[0].lower().startswith('s'):
-            strict_compare_one_doc(evaluators, doc_name, annotation_doc.grouped_annotations, grouped_annotations2)
+            strict_compare_one_doc(evaluators, doc_name, grouped_annotations, annotation_map2[doc_name])
         else:
-            relax_compare_one_doc(evaluators, doc_name, annotation_doc.grouped_annotations, grouped_annotations2)
+            relax_compare_one_doc(evaluators, doc_name, grouped_annotations, annotation_map2[doc_name])
 
     return evaluators
 
@@ -151,18 +146,18 @@ def compare(annotated_doc_map1: dict, annotated_doc_map2: dict, compare_method='
 #  consider a match only when the annotations' spans exactly match (both start and end are equal)
 #  evaluator, annotations to be compared, reference annotations
 def strict_compare_one_doc(evaluators: Evaluator, doc_name: str, grouped_annotations1: [], grouped_annotations2: []):
-    for type, annos_list_of_one_type in grouped_annotations1.items():
-        if type not in evaluators:
-            evaluators[type] = Evaluator()
-        evaluator = evaluators[type]
+    for type_name, annos_list_of_one_type in grouped_annotations1.items():
+        if type_name not in evaluators:
+            evaluators[type_name] = Evaluator()
+        evaluator = evaluators[type_name]
 
-        if type not in grouped_annotations2 or len(grouped_annotations2[type]) == 0:
+        if type_name not in grouped_annotations2 or len(grouped_annotations2[type_name]) == 0:
             evaluator.add_fp(len(annos_list_of_one_type))
             continue
 
         annos1 = sorted(annos_list_of_one_type, key=lambda x: x.start_index)
-        annos2 = sorted(grouped_annotations2[type], key=lambda x: x.start_index)
-        
+        annos2 = sorted(grouped_annotations2[type_name], key=lambda x: x.start_index)
+
         # Of course, we can try compare each one in a list against all in the other list. 
         # But here is an optimized way        
         # two pointers to track the two lists
@@ -208,12 +203,12 @@ def build_interval_tree(annos: []) -> IntervalTree:
 
 
 def relax_compare_one_doc(evaluators: Evaluator, doc_name: str, grouped_annotations1: [], grouped_annotations2: []):
-    for type, annos_list_of_one_type in grouped_annotations1.items():
-        if type not in evaluators:
-            evaluators[type] = Evaluator()
-        evaluator = evaluators[type]
+    for type_name, annos_list_of_one_type in grouped_annotations1.items():
+        if type_name not in evaluators:
+            evaluators[type_name] = Evaluator()
+        evaluator = evaluators[type_name]
 
-        if type not in grouped_annotations2 or len(grouped_annotations2[type]) == 0:
+        if type_name not in grouped_annotations2 or len(grouped_annotations2[type_name]) == 0:
             evaluator.add_fp(len(annos_list_of_one_type))
             continue
         # we use interval tree to find the overlapped annotations
@@ -221,7 +216,7 @@ def relax_compare_one_doc(evaluators: Evaluator, doc_name: str, grouped_annotati
         # complicated to implement, when dealing with multiple to one or one to multiple overlaps.
         annos1_tree = build_interval_tree(annos_list_of_one_type)
         overlapped_ids = set()
-        for anno2 in grouped_annotations2[type]:
+        for anno2 in grouped_annotations2[type_name]:
             overlapped = annos1_tree[anno2.start_index:anno2.end_index]
             if len(overlapped) == 0:
                 evaluator.add_fn()
@@ -237,3 +232,46 @@ def relax_compare_one_doc(evaluators: Evaluator, doc_name: str, grouped_annotati
     pass
 
 
+def show_annotations(doc_annotations, width=900, height=400):
+    if len(doc_annotations) == 0:
+        print('No documents to display.')
+        return
+    div_config1 = '<div style="background-color:#f9f9f9;padding-left:10px;' \
+                  'width: ' + str(width - 23) + 'px; ">'
+    div_config2 = '<div style="background-color:#f9f9f9;padding:10px; ' \
+                  'width: ' + str(width) + 'px; height: ' + str(height) + 'px; overflow-y: scroll;">'
+    html = ["<html>", div_config1, "<table width=100% >",
+            "<col style=\"width:25%\"><col style=\"width:75%\">", "</div>",
+            "<tr><th style=\"text-align:center\">document name</th><th style=\"text-align:center\">Snippets</th></table></div>",
+            div_config2,
+            "<table width=100% ><col style=\"width:25%\"><col style=\"width:75%\">"]
+    for doc_name, annotations in doc_annotations.items():
+        html.extend(show_annotations(doc_name, annotations))
+    html.append("</table></div>")
+    html.append("</html>")
+    return ''.join(html)
+
+
+def show_annotations(doc_name, doc_text, annotations):
+    from pyConTextNLP.display.html import __insert_color
+    html = []
+    color = 'blue'
+    window_size = 50
+    html.append("<tr>")
+    html.append("<td style=\"text-align:left\">{0}</td>".format(doc_name))
+    html.append("<td></td>")
+    html.append("</tr>")
+    for anno in annotations:
+        #           make sure the our snippet will be cut inside the text boundary
+        begin = anno.start_index - window_size
+        end = anno.end_index + window_size
+        begin = begin if begin > 0 else 0
+        end = end if end < len(doc_text) else len(doc_text)
+        #           render a highlighted snippet
+        cell = __insert_color(doc_text[begin:end], [anno.start_index - begin, anno.end_index - end], color)
+        #           add the snippet into table
+        html.append("<tr>")
+        html.append("<td></td>")
+        html.append("<td style=\"text-align:left\">{0}</td>".format(cell))
+        html.append("</tr>")
+    return html
