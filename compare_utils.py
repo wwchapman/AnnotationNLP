@@ -246,13 +246,13 @@ def show_annotations(doc_annotations, doc_map, width=900, height=400):
             div_config2,
             "<table width=100% ><col style=\"width:25%\"><col style=\"width:75%\">"]
     for doc_name, annotations in doc_annotations.items():
-        html.extend(show_annotations(doc_name, doc_map[doc_name], annotations))
+        html.extend(show_one_doc_annotations(doc_name, doc_map[doc_name], annotations))
     html.append("</table></div>")
     html.append("</html>")
     return ''.join(html)
 
 
-def show_annotations(doc_name, doc_text, annotations):
+def show_one_doc_annotations(doc_name, doc_text, annotations):
     from pyConTextNLP.display.html import __insert_color
     html = []
     color = 'blue'
