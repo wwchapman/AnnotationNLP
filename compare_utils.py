@@ -289,9 +289,4 @@ def show_one_doc_annotations(doc_name, doc_text, annotations, annotator_a, annot
     return html
 
 
-doc_map, evaluators = compare_projects('data/small', 'data/smallgold', 'relax')
-for type_name, evaluator in evaluators.items():
-    print(type_name)
-    print(evaluator.get_values())
-    print(evaluator.get_fps())
-    print(evaluator.get_fns())
+
