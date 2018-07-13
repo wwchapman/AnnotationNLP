@@ -156,6 +156,7 @@ def strict_compare_one_doc(evaluators: Evaluator, doc_name: str, grouped_annotat
 
         if type_name not in grouped_annotations2 or len(grouped_annotations2[type_name]) == 0:
             evaluator.add_fp(len(annos_list_of_one_type))
+            evaluator.append_fps(doc_name,annos_list_of_one_type)
             continue
 
         annos1 = sorted(annos_list_of_one_type, key=lambda x: x.start_index)
@@ -213,6 +214,7 @@ def relax_compare_one_doc(evaluators: Evaluator, doc_name: str, grouped_annotati
 
         if type_name not in grouped_annotations2 or len(grouped_annotations2[type_name]) == 0:
             evaluator.add_fp(len(annos_list_of_one_type))
+            evaluator.append_fps(doc_name,annos_list_of_one_type)
             continue
         # we use interval tree to find the overlapped annotations
         # you can try using a similar compare method used in the strict match, but the logic will be way more
@@ -285,3 +287,11 @@ def show_one_doc_annotations(doc_name, doc_text, annotations, annotator_a, annot
         html.append("<td style=\"text-align:left\">{0}</td>".format(cell))
         html.append("</tr>")
     return html
+
+
+doc_map, evaluators = compare_projects('data/small', 'data/smallgold', 'relax')
+for type_name, evaluator in evaluators.items():
+    print(type_name)
+    print(evaluator.get_values())
+    print(evaluator.get_fps())
+    print(evaluator.get_fns())
