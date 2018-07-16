@@ -156,15 +156,15 @@ def compare(annotation_map1: dict, annotation_map2: dict, compare_method='relax'
 def strict_compare_one_doc(evaluators: Evaluator, doc_name: str, grouped_annotations1: [], grouped_annotations2: [],
                            types):
     for type_name in types:
-        if type_name not in grouped_annotations1:
-            if type_name in grouped_annotations2:
-                evaluators[type_name].add_fn(len(grouped_annotations2[type_name]))
-                evaluators[type_name].append_fns(doc_name, grouped_annotations2[type_name])
-            continue
-        annos_list_of_one_type = grouped_annotations1[type_name]
         if type_name not in evaluators:
             evaluators[type_name] = Evaluator()
         evaluator = evaluators[type_name]
+        if type_name not in grouped_annotations1:
+            if type_name in grouped_annotations2:
+                evaluator.add_fn(len(grouped_annotations2[type_name]))
+                evaluator.append_fns(doc_name, grouped_annotations2[type_name])
+            continue
+        annos_list_of_one_type = grouped_annotations1[type_name]
 
         if type_name not in grouped_annotations2 or len(grouped_annotations2[type_name]) == 0:
             evaluator.add_fp(len(annos_list_of_one_type))
@@ -221,15 +221,16 @@ def build_interval_tree(annos: []) -> IntervalTree:
 def relax_compare_one_doc(evaluators: Evaluator, doc_name: str, grouped_annotations1: [], grouped_annotations2: [],
                           types):
     for type_name in types:
-        if type_name not in grouped_annotations1:
-            if type_name in grouped_annotations2:
-                evaluators[type_name].add_fn(len(grouped_annotations2[type_name]))
-                evaluators[type_name].append_fns(doc_name, grouped_annotations2[type_name])
-            continue
-        annos_list_of_one_type = grouped_annotations1[type_name]
         if type_name not in evaluators:
             evaluators[type_name] = Evaluator()
         evaluator = evaluators[type_name]
+        if type_name not in grouped_annotations1:
+            if type_name in grouped_annotations2:
+                evaluator.add_fn(len(grouped_annotations2[type_name]))
+                evaluator.append_fns(doc_name, grouped_annotations2[type_name])
+            continue
+        annos_list_of_one_type = grouped_annotations1[type_name]
+
 
         if type_name not in grouped_annotations2 or len(grouped_annotations2[type_name]) == 0:
             evaluator.add_fp(len(annos_list_of_one_type))
