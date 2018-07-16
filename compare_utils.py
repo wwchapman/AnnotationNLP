@@ -120,10 +120,10 @@ def docs_reader(project_dir):
     return doc_map, annotation_map
 
 
-def compare_projects(dir1: str, dir2: str, compare_method: str) -> dict:
+def compare_projects(dir1: str, dir2: str, compare_method: str, types=set()) -> dict:
     doc_map1, annotation_map1 = docs_reader(dir1)
     doc_map2, annotation_map2 = docs_reader(dir2)
-    return doc_map1, compare(annotation_map1, annotation_map2, compare_method)
+    return doc_map1, compare(annotation_map1, annotation_map2, compare_method, types)
 
 
 def compare(annotation_map1: dict, annotation_map2: dict, compare_method='relax', types=set()) -> dict:
