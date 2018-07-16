@@ -100,7 +100,7 @@ def read_doc_annotations(archive_file, force_redownload=False):
 		anno_doc.positive_label = 0
 		for anno in annos:
 			# NOTE : This "positive_label" relates to positive/possible cases of pneumonia
-			if anno.type == 'DOCUMENT_PNEUMONIA_YES':
+			if anno.type == 'PNEUMONIA_DOC_YES':
 				anno_doc.positive_label = 1
 
 	return annotated_doc_map
@@ -177,9 +177,9 @@ def pneumonia_annotation_html_markup(anno_doc):
 	from pyConTextNLP.display.html import __sort_by_span
 	# this bit mimics 'mark_document_with_html' from pyConTextNLP.display.html
 	colors = {}
-	colors['DOCUMENT_PNEUMONIA_YES'] = 'red'
-	colors['DOCUMENT_PNEUMONIA_NO'] = 'green'
-	colors['SPAN_POSITIVE_PNEUMONIA_EVIDENCE'] = 'red'
+	colors['PNEUMONIA_DOC_YES'] = 'red'
+	colors['PNEUMONIA_DOC_NO'] = 'green'
+	colors['EVIDENCE_OF_PNEUMONIA'] = 'red'
 	default_color = 'red'
 	html = """<p> {0} </p>""".format(" ".join([mark_text_custom(anno_doc.text,
 																__sort_by_span(anno_doc.annotations),
