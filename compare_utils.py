@@ -126,7 +126,7 @@ def compare_projects(dir1: str, dir2: str, compare_method: str) -> dict:
     return doc_map1, compare(annotation_map1, annotation_map2, compare_method)
 
 
-def compare(annotation_map1: dict, annotation_map2: dict, compare_method='relax') -> dict:
+def compare(annotation_map1: dict, annotation_map2: dict, compare_method='relax', types=set()) -> dict:
     """
     :param annotation_map1: a dictionary with doc_name as the key, an AnnotatedDocument as the value
     :param annotation_map2:a dictionary with doc_name as the key, an AnnotatedDocument as the value (of reference annotator)
@@ -137,11 +137,11 @@ def compare(annotation_map1: dict, annotation_map2: dict, compare_method='relax'
         raise ValueError("The two input datasets don't have a equal amount of documents.")
         return None
     evaluators = {}
-    types = set()
-    for grouped_annotations in annotation_map1.values():
-        types.update(grouped_annotations.keys())
-    for grouped_annotations in annotation_map2.values():
-        types.update(grouped_annotations.keys())
+    if len(types) == 0:
+        for grouped_annotations in annotation_map1.values():
+            types.update(grouped_annotations.keys())
+        for grouped_annotations in annotation_map2.values():
+            types.update(grouped_annotations.keys())
     for doc_name, grouped_annotations in annotation_map1.items():
         if compare_method[0].lower().startswith('s'):
             strict_compare_one_doc(evaluators, doc_name, grouped_annotations, annotation_map2[doc_name], sorted(types))
