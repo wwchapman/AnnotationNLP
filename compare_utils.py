@@ -137,6 +137,8 @@ def compare(annotation_map1: dict, annotation_map2: dict, compare_method='relax'
         raise ValueError("The two input datasets don't have a equal amount of documents.")
         return None
     evaluators = {}
+    # if you know the list of types that you will compare, you can set it up. Otherwise, it will go over all
+    #  the annotations to find all the types
     if len(types) == 0:
         for grouped_annotations in annotation_map1.values():
             types.update(grouped_annotations.keys())
@@ -230,7 +232,6 @@ def relax_compare_one_doc(evaluators: Evaluator, doc_name: str, grouped_annotati
                 evaluator.append_fns(doc_name, grouped_annotations2[type_name])
             continue
         annos_list_of_one_type = grouped_annotations1[type_name]
-
 
         if type_name not in grouped_annotations2 or len(grouped_annotations2[type_name]) == 0:
             evaluator.add_fp(len(annos_list_of_one_type))
